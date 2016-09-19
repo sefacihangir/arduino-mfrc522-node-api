@@ -1,0 +1,130 @@
+body {
+    background-color: #fafafa;
+}
+
+.sector-tile {
+    background-color: transparent;
+    /*border-right: 2px solid #444444;*/
+}
+
+.sector-tile:after {
+    display: block;
+    position: absolute;
+    content: ' ';
+    border-left: 2px solid #E65100;
+    border-radius: 10px;
+    top: 0px;
+    right: -18px;
+    width: 18px;
+    bottom: 0px;
+}
+
+.rfid-block .md-button {
+    /*display: none !important;*/
+    transition: all .3s ease-in-out;
+    transform: scale(0);
+}
+
+.rfid-block:hover .md-button {
+    /*display: block !important;*/
+    transform: scale(1);
+}
+
+.block-bit {
+    width: calc(calc(100% - 42px) / 8);
+    height: 100%;
+    float: left;
+    margin-left: 6px;
+    line-height: 150%;
+    text-align: center;
+    vertical-align: middle;
+    /*transition: all .3s ease-in-out;
+    transform: scale(0);*/
+}
+
+.block-bit:first-child {
+    margin-left: 0px;
+}
+
+
+/*
+.block-bit:nth-child(3),
+.block-bit:nth-child(4) {
+    margin-top: 6px;
+}
+*/
+
+.bit-holder {
+    width: 100%;
+    height: calc(50% - 3px);
+}
+
+.bit-holder:first-child {
+    margin-bottom: 6px;
+}
+
+.byte-holder {
+    width: 100%;
+    height: 100%;
+}
+
+
+/*.show {
+    transition: all 2s ease-in-out;
+    transform: scale(1);
+}*/
+
+.animate-if {
+    opacity: 1;
+}
+
+.animate-if.ng-enter,
+.animate-if.ng-leave {
+    transition: all 0.5s ease-in-out;
+}
+
+.animate-if.ng-enter,
+.animate-if.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+
+.animate-if.ng-leave,
+.animate-if.ng-enter.ng-enter-active {
+    opacity: 1;
+}
+
+.select-value {
+    width: calc(100% / 4);
+    display: block;
+    float: left;
+}
+
+.select-value2 {
+    width: calc(100% / 3);
+    display: block;
+    float: left;
+}
+
+thead {
+    /*border: 1px solid black;*/
+    background-color: #3949ab;
+    color: rgba(255, 255, 255, 0.87);
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+table {
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-left: 10px;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}

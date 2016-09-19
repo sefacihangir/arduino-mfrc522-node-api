@@ -1,0 +1,16 @@
+{
+  "name": "mfrc522",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "promise": "^7.1.1",
+    "serialport": "^4.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app.js"
+  },
+  "author": "tmrdja",
+  "license": "ISC"
+}

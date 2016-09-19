@@ -1,0 +1,33 @@
+<md-dialog>
+    <form ng-cloak>
+        <md-toolbar style="background-color: {{block.color}}">
+            <div class="md-toolbar-tools">
+                <h2 ng-if="sector.index >=0 ">Keys for Sector #{{sector.index}}</h2>
+                <h2 ng-if="sector.index == null || sector.index < 0 ">Keys for all sectors</h2>
+                <span flex></span>
+                <!--md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+                </md-button-->
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content" style="width: 500px;">
+                <md-input-container>
+                    <input ng-model="sector.keyA" placeholder="Key A" ng-pattern="/^[0-9A-Fa-f]{12}$/" md-maxlength="12">
+                </md-input-container>
+                <md-input-container>
+                    <input ng-model="sector.keyB" placeholder="Key B" ng-pattern="/^[0-9A-Fa-f]{12}$/" md-maxlength="12">
+                </md-input-container>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-raised md-primary" ng-click="save()" ng-disabled="sector.keyA == null || sector.keyB == null">
+                {{((sector.index == null) || (sector.index
+                < 0)) ? 'Set' : 'Save' }} </md-button>
+                    <span flex></span>
+                    <md-button class="md-raised" ng-click="cancel()">
+                        Close
+                    </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

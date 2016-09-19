@@ -1,0 +1,58 @@
+<md-toolbar class="md-hue-3 md-whiteframe-1dp" style="background: #f6f6f6;">
+    <div class="md-toolbar-tools">
+        <md-button class="md-raised md-primary" ng-click="mfrc522.openCard()">Open card</md-button>
+        <md-button class="md-fab md-primary md-mini" ng-click="mfrc522.changeKeys()">
+            <md-icon class="material-icons">lock</md-icon>
+        </md-button>
+        <md-input-container style="top: 15px">
+            <input ng-model="mfrc522.findSectorIndex" placeholder="Find sector" ng-change="mfrc522.findSector()">
+        </md-input-container>
+        <span flex></span>
+        <label>Uid: {{ mfrc522.uid }}</label><span flex></span>
+        <label>Type: {{ mfrc522.typeName(mfrc522.type) }}</label>
+    </div>
+</md-toolbar>
+<md-content flex>
+    <div style="height: calc(100vh - 143px); ">
+        <div style="max-width: 800px; margin: 15px auto;">
+            <md-grid-list md-cols="6" md-row-height-gt-md="1:1" md-row-height="1:1" md-gutter="24px" md-gutter-gt-sm="24px">
+                <md-grid-tile ng-repeat-start="sector in mfrc522.sectors track by $index" ng-init="sectorIndex = $index" class="sector-tile" md-colspan="2" md-rowspan="{{sector.blocks / 4 | number:0}}">
+                    <span id="sector{{$index}}" style="position: absolute;top: -15px;"></span>
+                    <h3>Sector #{{$index}}</h3>
+                    <md-button class="md-fab " style="background-color: #E65100;" ng-click="mfrc522.changeKeys(sector, $index)">
+                        <md-icon class="material-icons">lock</md-icon>
+                    </md-button>
+                </md-grid-tile>
+                <md-grid-tile ng-repeat="i in mfrc522.getNumber(0, sector.blocks - 1) track by $index" class="rfid-block" style="background-color: {{(sectorIndex == 0 && $index == 0) ? mfrc522.colors[0] : mfrc522.colors[1]}};">
+                    <h3>Block #{{i}}</h3>
+                    <md-button class="md-mini md-raised" md-ink-ripple="#ffa726" style="position: absolute;left: 0px;bottom: 0px;background-color: #ffa726;min-width: calc(50% - 12px);" ng-click="mfrc522.editBlock(sectorIndex, $index, true, sector.keyA)">A
+                    </md-button>
+                    <md-button class="md-mini md-raised" md-ink-ripple="#ffa726" style="position: absolute;right: 0px;bottom: 0px;background-color: #ffa726;min-width: calc(50% - 12px);" ng-click="mfrc522.editBlock(sectorIndex, $index, false, sector.keyB)">B
+                    </md-button>
+                    <md-tooltip md-direction="top">
+                        {{ (sectorIndex == 0 && $index == 0) ? 'Manufacturer Code' : 'Data Block'}}
+                    </md-tooltip>
+                </md-grid-tile>
+                <md-grid-tile ng-repeat-end class="rfid-block" style="background-color: {{mfrc522.colors[2]}};">
+                    <h3>Block #{{sector.blocks - 1}}</h3>
+                    <md-button class="md-mini md-raised" md-ink-ripple="#ffa726" style="position: absolute;left: 0px;bottom: 0px;background-color: #ffa726;min-width: calc(50% - 12px);" ng-click="mfrc522.editBlock(sectorIndex, sector.blocks - 1, true, sector.keyA)">A
+                    </md-button>
+                    <md-button class="md-mini md-raised" md-ink-ripple="#ffa726" style="position: absolute;right: 0px;bottom: 0px;background-color: #ffa726;min-width: calc(50% - 12px);" ng-click="mfrc522.editBlock(sectorIndex, sector.blocks - 1, false, sector.keyB)">B
+                    </md-button>
+                    <md-tooltip md-direction="top">
+                        Sector Trailer
+                    </md-tooltip>
+                </md-grid-tile>
+                <!--md-grid-tile ng-repeat-end style="background-color: transparent;" md-colspan-gt-sm="2">
+            <md-input-container>
+                <input ng-model="sector.keyB" placeholder="Key B" ng-pattern="/^[0-9A-Fa-f]{12}$/" md-maxlength="12">
+            </md-input-container>
+            <md-input-container>
+                <input ng-model="sector.keyA" placeholder="Key A" ng-pattern="/^[0-9A-Fa-f]{12}$/" md-maxlength="12">
+            </md-input-container>
+        </md-grid-tile-->
+
+            </md-grid-list>
+        </div>
+    </div>
+</md-content>

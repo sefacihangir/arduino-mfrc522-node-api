@@ -1,0 +1,241 @@
+<md-dialog>
+    <form ng-cloak style="overflow-x: visible;">
+        <md-toolbar style="background-color: {{(block.blockNumber > 0) ? block.color: '#00BCD4'}}">
+            <div class="md-toolbar-tools">
+                <h2 ng-if="block.blockNumber == 0">Block #0 - Manufacturer code</h2>
+                <h2 ng-if="block.blockNumber > 0 && (block.blockNumber % 4 != 3)">Block #{{block.blockNumber + ((block.isValueBlock) ? ' - Value block': ' - Data block')}}</h2>
+                <h2 ng-if="block.blockNumber > 0 && (block.blockNumber % 4 == 3)">Block #{{block.blockNumber}} - Trailer block</h2>
+                <span flex></span>
+                <!--md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+                </md-button-->
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="overflow-x: visible;">
+            <div class="md-dialog-content" style="width: 500px;" ng-if="(block.blockNumber == 0)">
+                <md-grid-list md-cols-xs="8" md-cols-sm="8" md-cols-md="8" md-cols-gt-md="8" md-row-height-gt-md="1:1" md-row-height="1:1" md-gutter="10px" md-gutter-gt-sm="10px">
+                    <md-grid-tile ng-repeat="i in getNumber(0,4) track by $index" style="background-color: #00BCD4;">
+                        <h3>{{ block.data[i] }}</h3>
+                    </md-grid-tile>
+                    <md-grid-tile style="background-color: #00838F;">
+                        <h3>{{ block.data[4] }}</h3>
+                    </md-grid-tile>
+                    <md-grid-tile ng-repeat="i in getNumber(5,11) track by $index" style="background-color: #8D6E63;">
+                        <h3>{{ block.data[i] }}</h3>
+                    </md-grid-tile>
+                </md-grid-list>
+            </div>
+            <div class="md-dialog-content" style="width: 500px;" ng-if="(block.blockNumber > 0 && block.blockNumber % 4 != 3)">
+                <md-grid-list md-cols-xs="8" md-cols-sm="8" md-cols-md="8" md-cols-gt-md="8" md-row-height-gt-md="1:1" md-row-height="1:1" md-gutter="10px" md-gutter-gt-sm="10px">
+                    <md-grid-tile ng-repeat="data in block.data track by $index" style="background-color: {{block.color}}">
+                        <h3>{{ data }}</h3>
+                    </md-grid-tile>
+                </md-grid-list>
+                <form layout layout-align="center" layout-padding>
+                    <md-switch ng-model="asString" ng-change="toggleAsString()" ng-show="!block.isValueBlock && block.blockNumber > 0">
+                        As String
+                    </md-switch>
+                    <md-switch ng-model="asLong" ng-show="block.isValueBlock && block.blockNumber > 0">
+                        As Long
+                    </md-switch>
+                    <div layout="row" flex>
+                        <md-input-container flex ng-hide="asString || asLong">
+                            <input ng-model="block.edit" placeholder="Data" ng-change="change()" ng-pattern="/^[0-9A-Fa-f]{32}$/" md-maxlength="32" ng-disabled="block.blockNumber == 0">
+                        </md-input-container>
+                        <md-input-container flex ng-show="asString && block.blockNumber > 0">
+                            <input ng-model="block.string" placeholder="Data as String" ng-change="changeString()" md-maxlength="16">
+                        </md-input-container>
+                        <md-input-container flex ng-show="asLong && block.blockNumber > 0">
+                            <input ng-model="block.value" placeholder="Data as Long" md-maxlength="15" ng-change="changeLong()">
+                        </md-input-container>
+                        <div ng-show="block.blockNumber > 0">
+                            <md-button class="md-raised md-primary" ng-click="write()" ng-disabled="(!asString && block.edit == null) ||(asString && block.string == null)" style="background-color: {{block.color}};">
+                                Write
+                            </md-button>
+                        </div>
+                    </div>
+                    <div layout="row">
+                        <md-button class="md-raised" ng-click="setAsValueBlock()" ng-disabled="block.isValueBlock" ng-show="block.blockNumber > 0">
+                            Set As Value Block
+                        </md-button>
+                    </div>
+                    <div layout="row" flex ng-show="block.isValueBlock">
+                        <md-input-container flex>
+                            <input ng-model="block.delta" placeholder="Delta" ng-change="changeDelta()" md-maxlength="15">
+                        </md-input-container>
+                        <div>
+                            <md-button class="md-raised md-primary" ng-click="increment()" ng-disabled="block.delta == null" style="background-color: {{block.color}};">
+                                Increment
+                            </md-button>
+                        </div>
+                        <div>
+                            <md-button class="md-raised md-primary" ng-click="decrement()" ng-disabled="block.delta == null" style="background-color: {{block.color}};">
+                                Decrement
+                            </md-button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="md-dialog-content" style="width: 1000px;" ng-if="(block.blockNumber % 4 == 3)">
+                <div layout="row">
+                    <div flex>
+                        <md-grid-list md-cols-xs="1" md-cols-sm="8" md-cols-md="8" md-cols-gt-md="8" md-row-height-gt-md="1:1" md-row-height="1:1" md-gutter="6px" md-gutter-gt-sm="6px">
+                            <md-grid-tile style="background-color: transparent" md-colspan-gt-sm="2">
+                                Key A
+                            </md-grid-tile>
+                            <md-grid-tile ng-repeat="i in getNumber(0, 6) track by $index" style="background-color: #7CB342;">
+                                <h3>{{ block.data[i] }}</h3>
+                            </md-grid-tile>
+                            <md-grid-tile style="background-color: transparent" md-colspan-gt-sm="2" md-rowspan="{{(showAsBit) ? 2 : 1}}">
+                                Permisions
+                            </md-grid-tile>
+                            <md-grid-tile ng-if="!showAsBit" ng-repeat="i in getNumber(6, 4) track by $index" style="background-color: #43A047;" class="animate-if">
+                                <h3>{{ block.data[i] }}</h3>
+                            </md-grid-tile>
+                            <md-grid-tile ng-if="showAsBit" style="background-color: transparent" md-colspan="4" class="animate-if">
+                                <div class="byte-holder">
+                                    <div class="bit-holder">
+                                        <div ng-repeat="i in getNumber(0, 4) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[1][1]}};">{{block.accessBits[0][i]}}</div>
+                                        <div ng-repeat="i in getNumber(4, 4) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[0][1]}}">{{block.accessBits[0][i]}}</div>
+                                    </div>
+                                    <div class="bit-holder">
+                                        <div ng-repeat="i in getNumber(0, 4) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[0][0]}}">{{block.accessBits[1][i]}}</div>
+                                        <div ng-repeat="i in getNumber(4, 4) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[2][1]}}">{{block.accessBits[1][i]}}</div>
+                                    </div>
+                                </div>
+                            </md-grid-tile>
+                            <md-grid-tile style="background-color: transparent" md-colspan="2" md-rowspan="{{(showAsBit) ? 2 : 1}}">
+                                <table ng-if="showAsBit" class="animate-if">
+                                    <tr ng-repeat="i in getNumber(0, 3)">
+                                        <td>
+                                            <div style="float: left; width: 15px; height: 15px; background-color:{{color[i][0]}};"></div>
+                                        </td>
+                                        <td> = C{{i+1}}</td>
+                                        <td>
+                                            <div style="float: left; width: 15px; height: 15px; background-color:{{color[i][1]}};"></div>
+                                        </td>
+                                        <td> = <span style="text-decoration:overline;">C{{i+1}}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="float: left; width: 15px; height: 15px; background-color:{{color[3]}};"></div>
+                                        </td>
+                                        <td> = B</td>
+                                        <td>
+
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </md-grid-tile>
+                            <md-grid-tile ng-if="showAsBit" style="background-color: transparent" md-colspan="4" class="animate-if">
+                                <div class="byte-holder">
+                                    <div class="bit-holder">
+                                        <div ng-repeat="i in getNumber(0, 4) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[2][0]}}">{{block.accessBits[2][i]}}</div>
+                                        <div ng-repeat="i in getNumber(4, 4) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[1][0]}}">{{block.accessBits[2][i]}}</div>
+                                    </div>
+                                    <div class="bit-holder">
+                                        <div ng-repeat="i in getNumber(0, 8) track by $index" class="block-bit" ng-class="{'show': showAsBit}" style="background-color:{{color[3]}}">{{block.accessBits[3][i]}}</div>
+                                    </div>
+                                </div>
+                            </md-grid-tile>
+                            <!--md-grid-tile ng-if="showAsBit" style="background-color: transparent" md-colspan-gt-sm="2">
+                    </md-grid-tile-->
+                            <md-grid-tile style="background-color: transparent" md-colspan-gt-sm="2">
+                                Key B
+                            </md-grid-tile>
+                            <md-grid-tile ng-repeat="i in getNumber(10, 6) track by $index" style="background-color: #009688;">
+                                <h3>{{ block.data[i] }}</h3>
+                            </md-grid-tile>
+                        </md-grid-list>
+                        <md-switch ng-model="showAsBit">
+                            Show permissions as bit
+                        </md-switch>
+                        <md-input-container flex>
+                            <input ng-model="block.keyA" placeholder="Key A" ng-change="changeKey(true)" ng-pattern="/^[0-9A-Fa-f]{12}$/" md-maxlength="12">
+                        </md-input-container>
+                        <md-input-container flex>
+                            <input ng-model="block.keyB" placeholder="Key B" ng-change="changeKey(false)" ng-pattern="/^[0-9A-Fa-f]{12}$/" md-maxlength="12">
+                        </md-input-container>
+                    </div>
+                    <div flex>
+                        <table>
+                            <thead style="background-color:{{block.color}}">
+                                <tr>
+                                    <th style="width: 15%;">Block</th>
+                                    <th style="width: 4%;">C1</th>
+                                    <th style="width: 4%;">C2</th>
+                                    <th style="width: 4%;">C3</th>
+                                    <th colspan="3" style="width: calc(73% / 4);">Read</th>
+                                    <th colspan="3" style="width: calc(73% / 4);">Write</th>
+                                    <th colspan="3" style="width: calc(73% / 4);">Increment</th>
+                                    <th colspan="3" style="width: calc(73% / 4);">Decrement, Transfer, Restore</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="a in block.accessConditions track by $index" ng-if="$index < 3">
+                                    <td style="font-weight: bold;">Block #{{$index}}</td>
+                                    <td style="color: {{color[0][0]}}; text-align: center;">{{ block.accessConditions[$index][0] }}</td>
+                                    <td style="color: {{color[1][0]}}; text-align: center;">{{ block.accessConditions[$index][1] }}</td>
+                                    <td style="color: {{color[2][0]}}; text-align: center;">{{ block.accessConditions[$index][2] }}</td>
+                                    <td colspan="12">
+                                        <md-select ng-model="block.accessConditions[$index]" placeholder="Access Conditions" ng-change="changeAccessConditions(block.accessConditions[$index], $index)" class="md-no-underline">
+                                            <md-option value="{{key}}" ng-repeat="(key, val) in AccessConditions">
+                                                <span class="select-value">{{val.read}}</span>
+                                                <span class="select-value">{{val.write}}</span>
+                                                <span class="select-value">{{val.incr}}</span>
+                                                <span class="select-value">{{val.decr}}</span>
+                                            </md-option>
+                                        </md-select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <thead style="background-color:{{block.color}}">
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2"></th>
+                                    <th colspan="4" style="width: calc(73% / 3);">Key A</th>
+                                    <th colspan="4" style="width: calc(73% / 3);">Access Cond.</th>
+                                    <th colspan="4" style="width: calc(73% / 43);">Key B</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="4">Read - Write</th>
+                                    <th colspan="4">Read - Write</th>
+                                    <th colspan="4">Read - Write</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-init="a = block.accessConditions[3]">
+                                    <td style="font-weight: bold;">Block #3</td>
+                                    <td style="color: {{color[0][0]}}; text-align: center;">{{ block.accessConditions[3][0] }}</td>
+                                    <td style="color: {{color[1][0]}}; text-align: center;">{{ block.accessConditions[3][1] }}</td>
+                                    <td style="color: {{color[2][0]}}; text-align: center;">{{ block.accessConditions[3][2] }}</td>
+                                    <td colspan="12">
+                                        <md-select ng-model="block.accessConditions[3]" placeholder="Access Conditions" ng-change="changeAccessConditions(block.accessConditions[3], 3)" class="md-no-underline">
+                                            <md-option value="{{key}}" ng-repeat="(key, val) in ACCESS_CONDITIONS_TRAILER">
+                                                <span class="select-value2">{{val.keyA.read}} - {{val.keyA.write}}</span>
+                                                <span class="select-value2">{{val.access.read}} - {{val.access.write}}</span>
+                                                <span class="select-value2">{{val.keyB.read}} - {{val.keyB.write}}</span>
+                                            </md-option>
+                                        </md-select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-raised md-primary" ng-click="write()" ng-if="(block.blockNumber % 4 == 3)" style="background-color: {{block.color}};">
+                Write
+            </md-button>
+            <span flex></span>
+            <md-button class="md-raised" ng-click="cancel()">
+                Close
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>
