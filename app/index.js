@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var MFRC522 = require('../node-server/MFRC522.js').MFRC522;
+var MFRC522 = require('../node/MFRC522.js').MFRC522;
 var keyA = 'ffffffffffff';
 
 exports.startServer = function (port, path, callback) {
